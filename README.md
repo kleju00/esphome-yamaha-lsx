@@ -78,15 +78,22 @@ light:
     mac_address: "00:00:00:00:00:00"
 ```
 
-🔍 How to find your speaker's MAC address?
+## 🔍 How to find your speaker's MAC address?
 You can find the MAC address of your Yamaha LSX-70 by pairing it with an Android smartphone and checking the device details in your Bluetooth settings. Alternatively, you can use a free app like nRF Connect or Bluetooth Scanner on your phone to scan for nearby devices and copy the MAC address.
 
-🛠️ Known Limitations
+## 🛠️ Known Limitations
 One-way Communication: The ESP32 sends commands to the speaker but does not actively read its status back. If you change the light state or brightness using the physical buttons on the speaker or the official Yamaha app, Home Assistant will not be aware of this change, and the state in the dashboard may become temporarily out of sync.
 
 Connection delay: Bluetooth Classic takes a moment to establish a connection. If the ESP32 disconnects or restarts, it might take a few seconds before the light reacts to the first command.
 
 Audio Playback: This component only controls the built-in light. It does not stream audio or interfere with existing audio connections to the speaker.
 
-🤝 Credits
+## 📸 Hardware Overview
+This component is designed specifically for the **Yamaha LSX-70 Relit** speaker:
+
+<img width="650" height="350" alt="image" src="https://github.com/user-attachments/assets/14e5a641-86a1-412e-b666-e56cb22ce9d0" />
+
+*Relit series - blending lighting and audio into one experience.*
+
+## 🤝 Credits
 Created as a custom integration to bring 'dumb' Bluetooth speaker lights into the smart home ecosystem using ESPHome and Home Assistant.
