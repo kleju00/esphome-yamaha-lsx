@@ -47,12 +47,7 @@ esp32:
 
 # Fetch the component from GitHub repository
 external_components:
-  - source:
-      type: github
-      url: https://github.com/kleju00/esphome-yamaha-lsx
-      # Optional: specify a branch or a tag
-      # ref: main
-    components: [ yamaha_lsx ]
+  - source: github://kleju00/esphome-yamaha-lsx
 
 # Enable logging
 logger:
