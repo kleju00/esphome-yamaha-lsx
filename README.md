@@ -18,8 +18,7 @@ It uses Bluetooth Classic (SPP) to communicate with the speaker, reverse-enginee
 
 You don't need to download any C++ or Python files manually. Just add the following configuration to your ESPHome YAML file. 
 
-**Note:** Remember to replace `YourUsername` in the URL with your actual GitHub username, and update the `mac_address` to match your speaker.
-
+```yaml
 esphome:
   name: yamaha-bridge
   friendly_name: Yamaha Bridge
@@ -46,7 +45,7 @@ esp32:
 external_components:
   - source:
       type: github
-      url: [https://github.com/YourUsername/esphome-yamaha-lsx](https://github.com/YourUsername/esphome-yamaha-lsx)
+      url: [https://github.com/kleju00/esphome-yamaha-lsx](https://github.com/YourUsername/esphome-yamaha-lsx)
     components: [ yamaha_lsx ]
 
 # Define your light entity
@@ -54,7 +53,18 @@ light:
   - platform: yamaha_lsx
     name: "Yamaha LSX-70 Light"
     id: yamaha_light_entity
-    mac_address: "00:1F:47:EB:89:40" # <-- Replace with your Yamaha's MAC address
+    mac_address: "00:00:00:00:00:00" # <-- Replace with your Yamaha's MAC address
+```
 
+🔍 How to find your speaker's MAC address?
+You can find the MAC address of your Yamaha LSX-70 by pairing it with an Android smartphone and checking the device details in your Bluetooth settings. Alternatively, you can use a free app like nRF Connect or Bluetooth Scanner on your phone to scan for nearby devices and copy the MAC address.
 
-    
+🛠️ Known Limitations
+One-way Communication: The ESP32 sends commands to the speaker but does not actively read its status back. If you change the light state or brightness using the physical buttons on the speaker or the official Yamaha app, Home Assistant will not be aware of this change, and the state in the dashboard may become temporarily out of sync.
+
+Connection delay: Bluetooth Classic takes a moment to establish a connection. If the ESP32 disconnects or restarts, it might take a few seconds before the light reacts to the first command.
+
+Audio Playback: This component only controls the built-in light. It does not stream audio or interfere with existing audio connections to the speaker.
+
+🤝 Credits
+Created as a custom integration to bring 'dumb' Bluetooth speaker lights into the smart home ecosystem using ESPHome and Home Assistant.
