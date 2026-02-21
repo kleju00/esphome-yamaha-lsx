@@ -1,0 +1,57 @@
+# Example configuration for Yamaha LSX-70 Light Bridge
+# Place this file in your ESPHome project directory.
+# You will also need the 'partitions_custom.csv' file in the same folder.
+
+esphome:
+  name: yamaha-lsx-bridge
+  friendly_name: Yamaha LSX Bridge
+
+esp32:
+  board: esp32dev
+  framework:
+    type: esp-idf
+    # Bluetooth Classic requires specific SDK settings in ESP-IDF
+    sdkconfig_options:
+      CONFIG_BT_ENABLED: "y"
+      CONFIG_BT_CLASSIC_ENABLED: "y"
+      CONFIG_BT_SPP_ENABLED: "y"
+      CONFIG_BT_SSP_ENABLED: "y" 
+      CONFIG_BTDM_CTRL_MODE_BLE_ONLY: "n"
+      CONFIG_BTDM_CTRL_MODE_BR_EDR_ONLY: "n"
+      CONFIG_BTDM_CTRL_MODE_BTDM: "y"
+      CONFIG_ESP32_WIFI_SW_COEXIST_ENABLE: "y"
+  
+  # Bluetooth Classic stack is large, so a custom partition table is required
+  partitions: partitions_custom.csv
+
+# Fetch the component from your GitHub repository
+external_components:
+  - source:
+      type: github
+      url: https://github.com/kleju00/esphome-yamaha-lsx
+      # Optional: specify a branch or a tag
+      # ref: main
+    components: [ yamaha_lsx ]
+
+# Enable logging
+logger:
+  level: INFO
+
+# Basic networking (replace with your settings or use secrets)
+wifi:
+  ssid: "Your_WiFi_SSID"
+  password: "Your_WiFi_Password"
+
+# Required for Home Assistant integration
+api:
+
+ota:
+  - platform: esphome
+
+# The actual light configuration
+light:
+  - platform: yamaha_lsx
+    name: "Yamaha LSX-70 Light"
+    id: yamaha_light
+    # Replace with the MAC address of your speaker
+    mac_address: "00:00:00:00:00:00"
