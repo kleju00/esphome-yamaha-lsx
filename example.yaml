@@ -24,7 +24,7 @@ esp32:
   # Bluetooth Classic stack is large, so a custom partition table is required
   partitions: partitions_custom.csv
 
-# Fetch the component from your GitHub repository
+# Fetch the component from GitHub repository
 external_components:
   - source:
       type: github
