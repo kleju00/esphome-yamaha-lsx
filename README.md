@@ -19,15 +19,19 @@ It uses Bluetooth Classic (SPP) to communicate with the speaker, reverse-enginee
 You don't need to download any C++ or Python files manually. Just add the following configuration to your ESPHome YAML file. 
 
 ```yaml
+# Example configuration for Yamaha LSX-70 Light Bridge
+# Place this file in your ESPHome project directory.
+# You will also need the 'partitions_custom.csv' file in the same folder.
+
 esphome:
-  name: yamaha-bridge
-  friendly_name: Yamaha Bridge
+  name: yamaha-lsx-bridge
+  friendly_name: Yamaha LSX Bridge
 
 esp32:
   board: esp32dev
   framework:
     type: esp-idf
-    # Mandatory SDK configurations to enable Bluetooth Classic
+    # Bluetooth Classic requires specific SDK settings in ESP-IDF
     sdkconfig_options:
       CONFIG_BT_ENABLED: "y"
       CONFIG_BT_CLASSIC_ENABLED: "y"
@@ -38,22 +42,40 @@ esp32:
       CONFIG_BTDM_CTRL_MODE_BTDM: "y"
       CONFIG_ESP32_WIFI_SW_COEXIST_ENABLE: "y"
   
-  # Highly recommended: Use a custom partition table to fit the BT Classic stack
+  # Bluetooth Classic stack is large, so a custom partition table is required
   partitions: partitions_custom.csv
 
-# Fetch the component directly from GitHub
+# Fetch the component from your GitHub repository
 external_components:
   - source:
       type: github
-      url: [https://github.com/kleju00/esphome-yamaha-lsx](https://github.com/YourUsername/esphome-yamaha-lsx)
+      url: https://github.com/klej00/esphome-yamaha-lsx
+      # Optional: specify a branch or a tag
+      # ref: main
     components: [ yamaha_lsx ]
 
-# Define your light entity
+# Enable logging
+logger:
+  level: INFO
+
+# Basic networking (replace with your settings or use secrets)
+wifi:
+  ssid: "Your_WiFi_SSID"
+  password: "Your_WiFi_Password"
+
+# Required for Home Assistant integration
+api:
+
+ota:
+  - platform: esphome
+
+# The actual light configuration
 light:
   - platform: yamaha_lsx
     name: "Yamaha LSX-70 Light"
-    id: yamaha_light_entity
-    mac_address: "00:00:00:00:00:00" # <-- Replace with your Yamaha's MAC address
+    id: yamaha_light
+    # Replace with the MAC address of your speaker
+    mac_address: "00:00:00:00:00:00"
 ```
 
 🔍 How to find your speaker's MAC address?
