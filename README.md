@@ -49,7 +49,7 @@ esp32:
 external_components:
   - source:
       type: github
-      url: https://github.com/klej00/esphome-yamaha-lsx
+      url: https://github.com/kleju00/esphome-yamaha-lsx
       # Optional: specify a branch or a tag
       # ref: main
     components: [ yamaha_lsx ]
