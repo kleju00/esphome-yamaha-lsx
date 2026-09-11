@@ -93,7 +93,7 @@ void YamahaLSX::esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param) 
             
         case ESP_SPP_OPEN_EVT:
             if (param->open.status == ESP_SPP_SUCCESS) {
-                ESP_LOGI(TAG, "POŁĄCZONO! Handle: %d", param->open.handle);
+                ESP_LOGI(TAG, "POŁĄCZONO! Handle: %lu", (unsigned long)param->open.handle);
                 global_yamaha_instance->connected_ = true;
                 global_yamaha_instance->handle_ = param->open.handle;
             } else {
