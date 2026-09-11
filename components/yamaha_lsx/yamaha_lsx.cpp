@@ -124,7 +124,10 @@ light::LightTraits YamahaLSX::get_traits() {
 }
 
 void YamahaLSX::write_state(light::LightState *state) {
+    // Anuluj poprzednie timery, aby uniknąć problemów przy szybkim klikaniu
     this->cancel_timeout("send_dimmer");
+    this->cancel_timeout("force_off_1");
+    this->cancel_timeout("force_off_2");
 
     if (!this->connected_) {
         static uint32_t last_log = 0;
@@ -133,6 +136,9 @@ void YamahaLSX::write_state(light::LightState *state) {
              last_log = millis();
              this->connect();
         }
+        // Uwaga: Jeśli lampa była rozłączona, pierwsza komenda przepadnie 
+        // i trzeba będzie kliknąć ponownie. Aby temu zapobiec, należałoby 
+        // zaimplementować buforowanie komend po evencie ESP_SPP_OPEN_EVT.
         return;
     }
 
@@ -143,8 +149,19 @@ void YamahaLSX::write_state(light::LightState *state) {
         ESP_LOGI(TAG, "Komenda: OFF");
         send_packet(0x01, 0x00);
         
-        this->set_timeout("force_off", 50, [=]() {
-             if(global_yamaha_instance) global_yamaha_instance->send_packet(0x01, 0x00);
+        // ZWIĘKSZONE OPÓŹNIENIA: Dajemy lampie czas na wybudzenie z trybu Standby
+        // Pierwsza próba po 250ms
+        this->set_timeout("force_off_1", 250, [=]() {
+             if(global_yamaha_instance && global_yamaha_instance->connected_) {
+                 global_yamaha_instance->send_packet(0x01, 0x00);
+             }
+        });
+        
+        // Druga próba po 600ms (dla pewności)
+        this->set_timeout("force_off_2", 600, [=]() {
+             if(global_yamaha_instance && global_yamaha_instance->connected_) {
+                 global_yamaha_instance->send_packet(0x01, 0x00);
+             }
         });
         
     } else {
@@ -156,7 +173,8 @@ void YamahaLSX::write_state(light::LightState *state) {
         
         send_packet(0x01, 0x01);
         
-        this->set_timeout("send_dimmer", 250, [=]() {
+        // Zwiększamy czas również dla włączania, na wypadek uśpienia
+        this->set_timeout("send_dimmer", 300, [=]() {
              if(global_yamaha_instance && global_yamaha_instance->connected_) {
                  global_yamaha_instance->send_packet(0x04, (uint8_t)level);
              }
