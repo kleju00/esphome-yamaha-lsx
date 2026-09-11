@@ -124,10 +124,11 @@ light::LightTraits YamahaLSX::get_traits() {
 }
 
 void YamahaLSX::write_state(light::LightState *state) {
-    // Anuluj poprzednie timery, aby uniknąć problemów przy szybkim klikaniu
-    this->cancel_timeout("send_dimmer");
+    // Anulujemy tylko potrzebne timery
     this->cancel_timeout("force_off_1");
     this->cancel_timeout("force_off_2");
+    this->cancel_timeout("force_off_3");
+    this->cancel_timeout("send_dimmer");
 
     if (!this->connected_) {
         static uint32_t last_log = 0;
@@ -136,9 +137,6 @@ void YamahaLSX::write_state(light::LightState *state) {
              last_log = millis();
              this->connect();
         }
-        // Uwaga: Jeśli lampa była rozłączona, pierwsza komenda przepadnie 
-        // i trzeba będzie kliknąć ponownie. Aby temu zapobiec, należałoby 
-        // zaimplementować buforowanie komend po evencie ESP_SPP_OPEN_EVT.
         return;
     }
 
@@ -146,19 +144,20 @@ void YamahaLSX::write_state(light::LightState *state) {
     float brightness = state->current_values.get_brightness();
 
     if (!is_on) {
-        ESP_LOGI(TAG, "Komenda: OFF");
+        ESP_LOGI(TAG, "Komenda: OFF (Sekwencja wybudzania)");
+        
+        // 1. Pierwsze uderzenie wyłączające
         send_packet(0x01, 0x00);
         
-        // ZWIĘKSZONE OPÓŹNIENIA: Dajemy lampie czas na wybudzenie z trybu Standby
-        // Pierwsza próba po 250ms
-        this->set_timeout("force_off_1", 250, [=]() {
+        // 2. Próba po 1 sekundzie 
+        this->set_timeout("force_off_1", 1000, [=]() {
              if(global_yamaha_instance && global_yamaha_instance->connected_) {
                  global_yamaha_instance->send_packet(0x01, 0x00);
              }
         });
         
-        // Druga próba po 600ms (dla pewności)
-        this->set_timeout("force_off_2", 600, [=]() {
+        // 3. Próba po 2.5 sekundach
+        this->set_timeout("force_off_2", 2500, [=]() {
              if(global_yamaha_instance && global_yamaha_instance->connected_) {
                  global_yamaha_instance->send_packet(0x01, 0x00);
              }
@@ -171,10 +170,10 @@ void YamahaLSX::write_state(light::LightState *state) {
 
         ESP_LOGI(TAG, "Komenda: ON + DIMMER (Level %d/5)", level);
         
+        // Szybkie włączenie bez zbędnych opóźnień
         send_packet(0x01, 0x01);
         
-        // Zwiększamy czas również dla włączania, na wypadek uśpienia
-        this->set_timeout("send_dimmer", 300, [=]() {
+        this->set_timeout("send_dimmer", 250, [=]() {
              if(global_yamaha_instance && global_yamaha_instance->connected_) {
                  global_yamaha_instance->send_packet(0x04, (uint8_t)level);
              }
