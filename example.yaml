@@ -19,7 +19,7 @@ esp32:
       CONFIG_BTDM_CTRL_MODE_BLE_ONLY: "n"
       CONFIG_BTDM_CTRL_MODE_BR_EDR_ONLY: "n"
       CONFIG_BTDM_CTRL_MODE_BTDM: "y"
-      CONFIG_ESP32_WIFI_SW_COEXIST_ENABLE: "y"
+      CONFIG_ESP_COEX_SW_COEXIST_ENABLE: "y"
   
   # Bluetooth Classic stack is large, so a custom partition table is required
   partitions: partitions_custom.csv
