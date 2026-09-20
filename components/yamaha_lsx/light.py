@@ -1,6 +1,6 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
-from esphome.components import light
+from esphome.components import light, esp32
 from esphome.const import CONF_OUTPUT_ID
 
 # Deklarujemy nową stałą dla pola MAC
@@ -15,11 +15,15 @@ CONFIG_SCHEMA = light.BRIGHTNESS_ONLY_LIGHT_SCHEMA.extend({
 }).extend(cv.COMPONENT_SCHEMA)
 
 async def to_code(config):
+    # Wymuszenie dodania modułu 'bt' do budowy ESP-IDF (Bluetooth Classic/SPP)
+    esp32.add_idf_component("bt")
+    esp32.include_builtin_idf_component("bt")
+
     var = cg.new_Pvariable(config[CONF_OUTPUT_ID])
-    
+
     await cg.register_component(var, config)
     await light.register_light(var, config)
-    
+
     # Przekazanie adresu MAC z YAMLa do C++
     mac = config[CONF_MAC_ADDRESS].parts
     cg.add(var.set_mac_address([mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]]))
